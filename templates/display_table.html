@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UnWastedDB</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>UnWastedDB</h1>
+
+    <div class="column-selector">
+        <form id="columnFilterForm" method="GET" action="{{ url_for('index') }}">
+            <strong>Show Columns:</strong><br>
+            {% for column in columns %}
+            <label>
+                <input type="checkbox" name="visible_columns" value="{{ column.name }}" {% if column.name in visible_columns %}checked{% endif %}>
+                {{ column.name }}
+            </label>
+            {% endfor %}
+            <br>
+            <button type="button" onclick="updateURLAndSubmit()">Apply Filter</button>
+        </form>
+    </div>
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% else %}
+    {% if data %}
+    <table>
+        <thead>
+            <tr>
+                {% for column in columns %}
+                {% if column.name in visible_columns %}
+                <th>{{ column.name }}</th>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                {% for key, value in row.items() %}
+                    {% if key in visible_columns %}
+                    <td>{{ value }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No data found in this table.</p>
+    {% endif %}
+    {% endif %}
+
+    <script>
+        function updateURLAndSubmit() {
+            const form = document.getElementById('columnFilterForm');
+            const checkboxes = form.querySelectorAll('input[name="visible_columns"]:checked');
+            const selectedColumns = Array.from(checkboxes).map(cb => cb.value);
+
+            let newURL = '/';
+
+            if (selectedColumns.length > 0) {
+                newURL += `?visible_columns=${encodeURIComponent(selectedColumns.join(','))}`;
+            }
+
+            window.location.href = newURL;
+        }
+    </script>
+</body>
+</html>

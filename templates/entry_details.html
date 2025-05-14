@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Entry Details: {{ entry.run_accession }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+        }
+
+        a {
+            color: #4a7c59;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            color: #4a7c59;
+            margin: 0 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .collapsible {
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .collapsible-header {
+            background-color: #4a7c59;
+            color: white;
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .collapsible-header:hover {
+            background-color: #3a6348;
+        }
+
+        .arrow {
+            margin-right: 10px;
+            font-size: 1.2em;
+            transition: transform 0.3s;
+        }
+
+        .collapsible-content {
+            padding: 15px;
+            display: none;
+        }
+
+        /* Style for the expanded state */
+        .collapsible.open .arrow {
+            transform: rotate(90deg);
+        }
+
+        .collapsible.open .collapsible-content {
+            display: block;
+        }
+
+        #entry-metadata-detail {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #4a7c59;
+            margin-right: 10px;
+            display: inline-block;
+            min-width: 150px;
+        }
+
+        /* Styling for related files (adjust as needed) */
+        .related-files {
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
+        }
+
+        .file-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .file-item {
+            margin-bottom: 5px;
+        }
+
+        .download-button {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #a0522d;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+        }
+
+        .download-button:hover {
+            background-color: #8a4526;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 8px 15px;
+            background-color: #4a7c59;
+            color: white;
+            border-radius: 4px;
+        }
+
+        .back-link:hover {
+            background-color: #3a6348;
+            text-decoration: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .detail-label {
+                display: block;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Entry: {{ entry.run_accession }}</h1>
+
+    <div class="entry-final-result">
+        <div class="collapsible">
+            <div class="collapsible-header">
+                <span class="arrow">▶</span>
+                <span class="title">Genomic Comparisson Results</span>
+            </div>
+
+            <div class="collapsible-content" id="final-result">
+                <pre>{{ final_result }}</pre>
+
+                <p><a href="{{ url_for('get_content_file', filename=final_result_path) }}">Download Text File</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="entry-genomic-files-detail">
+        {% for file in genomic_files %}
+        <div class="collapsible">
+            <div class="collapsible-header">
+                <span class="arrow">▶</span>
+                <span class="title">{{ file.genomic_type }}</span>
+            </div>
+            <div class="collapsible-content" id="entry-metadata-detail">
+                {% for key, value in file.items() %}
+                <p><span class="detail-label">{{ key }}:</span> {{ value }}</p>
+                {% endfor %}
+
+                {% if file.file_path %}
+                <a href="{{ url_for('download_file_route', file_identifier=file.file_path) }}" class="download-button"
+                    download> {# The 'download' attribute hints to the
+                    browser #}
+                    Download {{ file.genomic_type | default('File') }}
+                </a>
+                {% else %}
+                <p><small><i>Download link not available for this file.</i></small></p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="collapsible">
+        <div class="collapsible-header">
+            <span class="arrow">▶</span>
+            <span class="title">Metadata</span>
+        </div>
+        <div class="collapsible-content" id="entry-metadata-detail">
+            <a id="downloadMDButton" class="download-button" download>Download as JSON</a>
+            {% for key, value in entry.items() %}
+            <p><span class="detail-label">{{ key }}:</span> {{ value }}</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <p><a class="back-link" href="{{ url_for('index') }}">Back to Entries List</a></p>
+</body>
+
+<script>
+    const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
+
+    collapsibleHeaders.forEach(header => {
+        header.addEventListener('click', () => {
+            const collapsible = header.parentNode;
+            collapsible.classList.toggle('open');
+        });
+    });
+
+    function downloadMetadataAsJson(dictionary, filename = 'metadata.json') {
+        // Convert the JavaScript dictionary to a JSON string
+        const jsonString = JSON.stringify(dictionary, null, 2); // The 'null, 2' arguments format the JSON for readability
+
+        // Create a Blob object from the JSON string
+        const blob = new Blob([jsonString], { type: 'application/json' });
+
+        // Create a temporary <a> element
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = filename;
+
+        // Programmatically click the link to trigger the download
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+
+        // Clean up by removing the temporary link
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(downloadLink.href); // Release the object URL
+    }
+
+    // Get a reference to the button
+    const downloadButton = document.getElementById('downloadMDButton');
+    const metadata = {{ entry| tojson }};
+    // Add an event listener to the button
+    downloadButton.addEventListener('click', () => {
+        downloadMetadataAsJson(metadata);
+    });
+</script>
+
+</html>

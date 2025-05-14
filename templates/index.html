@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>UnWastedDB</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .logo {
+            height: 120px; /* Adjust as needed */
+            width: auto;
+        }
+        
+        .title-container {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .subtitle {
+            font-size: 0.9em;
+            color: #666;
+            /* margin-top: 5px; */
+            /* margin-bottom: 40px; */
+            /* padding-bottom: 10px; */
+            /* border-bottom: 1px solid #e0e0e0; */
+        }
+
+        /* Header */
+        h1 {
+            color: #4a7c59;
+            margin: 0 0 0 0;
+            /* padding-bottom: 10px; */
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+
+        button {
+            padding: 8px 15px;
+            background-color: #4a7c59;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #4a7c59;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        a {
+            color: #4a7c59;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        /* .filter-metagenomic-button-container {
+            padding: 8px 15px;
+        }
+
+        .filter-columns-button-container {
+            padding: 8px 15px;
+        } */
+
+        .filter-columns-menu {
+            display: none;
+            /* Hidden by default */
+            position: absolute;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            padding: 10px;
+            z-index: 10;
+            /* Ensure it's on top of other elements */
+            box-shadow: 2px 2px 5px #888888;
+        }
+
+        .filter-columns-menu.show {
+            display: block;
+            /* Show when the 'show' class is added */
+        }
+
+        .filter-columns-menu label {
+            display: block;
+            /* Each label on a new line */
+            margin-bottom: 5px;
+        }
+
+        .filter-columns-menu button {
+            padding: 8px 15px;
+            background-color: #4a7c59;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .filter-metagenomic-button-container {
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .filter-columns-button-container {
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .advanced-filter-button-container {
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .filter-genomic-menu {
+            display: none;
+            /* Hidden by default */
+            position: absolute;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            padding: 10px;
+            z-index: 10;
+            /* Ensure it's on top of other elements */
+            box-shadow: 2px 2px 5px #888888;
+        }
+
+        .filter-genomic-menu.show {
+            display: block;
+            /* Show when the 'show' class is added */
+        }
+
+        .filter-genomic-menu label {
+            display: block;
+            /* Each label on a new line */
+            margin-bottom: 5px;
+        }
+
+        .filter-genomic-menu button {
+            padding: 8px 15px;
+            background-color: #4a7c59;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .advanced-filter-builder {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .advanced-filter-builder.show {
+            display: block;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .filter-row>* {
+            margin-right: 10px;
+        }
+
+        .logic-selector {
+            width: 60px;
+        }
+
+        .field-selector {
+            flex-grow: 1;
+        }
+
+        .value-input {
+            flex-grow: 2;
+            padding: 8px;
+        }
+
+        .remove-row,
+        .add-row {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .add-row {
+            margin-right: 0;
+        }
+
+        .show-index-list {
+            margin-left: auto;
+            font-size: 0.9em;
+        }
+
+        .filter-actions {
+            margin-top: 15px;
+        }
+
+        .search-button {
+            background-color: #a0522d;
+        }
+
+        .search-button:hover {
+            background-color: #8a4526;
+        }
+
+        .add-to-history {
+            margin-left: 10px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-container">
+        <img src="{{ url_for('static', filename='figs/logo.png') }}" alt="UnWastedDB Logo" class="logo">
+        <div class="title-container">
+            <h1>UnWastedDB</h1>
+            <div class="subtitle">Genomic Reconstructions Database</div>
+        </div>
+    </div>
+
+    <div class="filter-columns-button-container">
+        <button class='button' onmouseout="hideFilterColumnsMenu()" onmouseover="showFilterColumnsMenu()">Show
+            Columns</button>
+    </div>
+
+    <div class="filter-metagenomic-button-container">
+        <button class='button' onmouseout="hideFilterGenomicMenu()" onmouseover="showFilterGenomicMenu()">Filter Genomic
+            Types</button>
+    </div>
+
+    <div onmouseout="autoHideColumnFilterMenu()" id="columnFilterMenu" class="filter-columns-menu">
+        <button type="button" onclick="applyColumnFilter()">Apply Filter</button>
+        <button type="button" onclick="selectAllColumns()">Select All</button>
+        <button type="button" onclick="unselectAllColumns()">Unselect All</button>
+        <form id="columnFilterForm">
+            {% for column in columns_sorted %}
+            <label>
+                {% if column not in always_visible_columns %}
+                <input type="checkbox" name="visible_columns" value="{{ column }}" {% if column in visible_columns
+                    %}checked{% endif %}>
+                {{ column }}
+            </label>
+            {% endif %}
+            {% endfor %}
+            <br>
+        </form>
+    </div>
+
+    <div onmouseout="autoHideGenomicFilterMenu()" id="genomicFilterMenu" class="filter-genomic-menu">
+        <button type="button" onclick="applyGenomicTypeFilter()">Apply Filter</button>
+        <button type="button" onclick="selectAllGenomicTypes()">Select All</button>
+        <button type="button" onclick="unselectAllGenomicTypes()">Unselect All</button>
+        <form id="genomicFilterForm">
+            {% for g in genomic_types %}
+            <label>
+                <input type="checkbox" name="filter_genomes" value="{{ g }}" {% if g in filter_genomes %}checked{% endif
+                    %}>
+                {{ g }}
+            </label>
+            {% endfor %}
+            <br>
+        </form>
+    </div>
+
+    <div class="advanced-filter-button-container">
+        <button class='button' onclick="toggleAdvancedFilter()">Advanced Filter</button>
+    </div>
+
+    <div class="advanced-filter-builder" id="advancedFilter">
+        <h3>Advanced Filter</h3>
+
+        <div class="filter-row">
+            <select class="field-selector">
+                <option value="all_fields">All Fields</option>
+            </select>
+            <select class="op-selector">
+                <option value="EQUAL">EQUAL</option>
+                <option value="DIFFERENT">DIFFERENT</option>
+                <option value="LESS THAN">LESS THAN</option>
+                <option value="LESS OR EQUAL THAN">LESS OR EQUAL THAN</option>
+                <option value="MORE THAN">MORE THAN</option>
+                <option value="MORE OR EQUAL THAN">MORE OR EQUAL THAN</option>
+                <option value="CONTAINS">CONTAINS</option>
+                <option value="LIKE">LIKE</option>
+            </select>
+            <input type="text" class="value-input">
+        </div>
+
+        <div class="filter-actions">
+            <button type="button" class="add-row">+</button>
+            <br>
+            <br>
+            <button type="button" class="search-button">Search</button>
+        </div>
+    </div>
+
+    {% if total_pages > 1 %}
+    <div class="pagination-controls" style="margin-top: 20px; text-align: center;">
+        {% if has_prev %}
+        <a
+            href="{{ url_for('index', page=current_page-1, visible_columns=request.args.get('visible_columns'), filter_genomes=request.args.getlist('filter_genomes')) }}">
+            &laquo; Previous
+        </a>
+        {% else %}
+        <span style="color: grey;">&laquo; Previous</span>
+        {% endif %}
+
+        <span style="margin: 0 15px;">
+            Page {{ current_page }} of {{ total_pages }}
+        </span>
+
+        {% if has_next %}
+        <a
+            href="{{ url_for('index', page=current_page+1, visible_columns=request.args.get('visible_columns'), filter_genomes=request.args.getlist('filter_genomes')) }}">
+            Next &raquo;
+        </a>
+        {% else %}
+        <span style="color: grey;">Next &raquo;</span>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% else %}
+    {% if data %}
+    <table>
+        <thead>
+            <tr>
+                {% for column in columns_names %}
+                {% if column in visible_columns_names %}
+                <th>{{ column }}</th>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                {% for key, value in row.items() %}
+                {% if key in visible_columns %}
+                {% if key == 'run_accession' %}
+                <td><a href="{{ url_for('show_entry', run_accession=value) }}">{{ value }}</a></td>
+                {% else %}
+                <td>{{ value }}</td>
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if total_pages > 1 %}
+    <div class="pagination-controls" style="margin-top: 20px; text-align: center;">
+        {% if has_prev %}
+        <a
+            href="{{ url_for('index', page=current_page-1, visible_columns=request.args.get('visible_columns'), filter_genomes=request.args.getlist('filter_genomes')) }}">
+            &laquo; Previous
+        </a>
+        {% else %}
+        <span style="color: grey;">&laquo; Previous</span>
+        {% endif %}
+
+        <span style="margin: 0 15px;">
+            Page {{ current_page }} of {{ total_pages }}
+        </span>
+
+        {% if has_next %}
+        <a
+            href="{{ url_for('index', page=current_page+1, visible_columns=request.args.get('visible_columns'), filter_genomes=request.args.getlist('filter_genomes')) }}">
+            Next &raquo;
+        </a>
+        {% else %}
+        <span style="color: grey;">Next &raquo;</span>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <p>No data found in this table.</p>
+    {% endif %}
+    {% endif %}
+
+    <script>
+        const columnFilterMenu = document.getElementById('columnFilterMenu');
+        const genomicFilterMenu = document.getElementById('genomicFilterMenu');
+        const advancedFilterBuilder = document.getElementById('advancedFilter');
+        const columnCheckboxes = document.querySelectorAll('#columnFilterForm input[name="visible_columns"]');
+        const genomesCheckboxes = document.querySelectorAll('#genomicFilterForm input[name="filter_genomes"]');
+        const addRowButton = advancedFilterBuilder.querySelector('.add-row');
+
+        let hideTimeoutId;
+
+        function toggleAdvancedFilter() {
+            advancedFilterBuilder.classList.toggle('show');
+            console.log('toggle');
+        }
+
+        const fields = [
+            {% for column in columns_sorted %}
+        '{{ column }}'{% if not loop.last %}, {% endif %}
+        {% endfor %}
+            ];
+
+        function populateFieldSelectors() {
+            const fieldSelectors = advancedFilterBuilder.querySelectorAll('.field-selector');
+
+            fieldSelectors.forEach(selector => {
+                fields.forEach(field => {
+                    const option = document.createElement('option');
+                    option.value = field;
+                    option.textContent = field.replace(/_/g, ' ');
+                    selector.appendChild(option);
+                });
+            });
+        }
+        populateFieldSelectors();
+
+        function createNewFilterRow() {
+            console.log('create new filter row');
+            const newRow = document.createElement('div');
+            newRow.classList.add('filter-row');
+
+            const logicSelector = document.createElement('select');
+            logicSelector.classList.add('logic-selector');
+            logicSelector.innerHTML = '<option value="AND">AND</option><option value="OR">OR</option>';
+
+            const opSelector = document.createElement('select');
+            opSelector.classList.add('op-selector');
+            opSelector.innerHTML = '<option value="EQUAL">EQUAL</option><option value="DIFFERENT">DIFFERENT</option><option value="LESS THAN">LESS THAN</option><option value="LESS OR EQUAL THAN">LESS OR EQUAL THAN</option><option value="MORE THAN">MORE THAN</option><option value="MORE OR EQUAL THAN">MORE OR EQUAL THAN</option><option value="CONTAINS">CONTAINS</option><option value="LIKE">LIKE</option>';
+
+            const fieldSelector = document.createElement('select');
+            fieldSelector.classList.add('field-selector');
+            fieldSelector.innerHTML = '<option value="all_fields">All Fields</option>';
+            fields.forEach(field => {
+                const option = document.createElement('option');
+                option.value = field;
+                option.textContent = field.replace(/_/g, ' ');
+                fieldSelector.appendChild(option);
+            });
+
+            const valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.classList.add('value-input');
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.classList.add('remove-row');
+            removeButton.textContent = '-';
+            removeButton.addEventListener('click', function () {
+                newRow.remove();
+            });
+
+            newRow.appendChild(logicSelector);
+            newRow.appendChild(fieldSelector);
+            newRow.appendChild(opSelector);
+            newRow.appendChild(valueInput);
+            newRow.appendChild(removeButton);
+
+            // Insert the new row before the actions section
+            advancedFilterBuilder.insertBefore(newRow, advancedFilterBuilder.querySelector('.filter-actions'));
+
+            // Disable logic selector for the first row
+            if (advancedFilterBuilder.querySelectorAll('.filter-row').length === 1) {
+                newRow.querySelector('.logic-selector').disabled = true;
+            }
+        }
+
+        // Event listener for the "Search" button
+        const searchButton = advancedFilterBuilder.querySelector('.search-button');
+        if (searchButton) {
+            searchButton.addEventListener('click', function () {
+                const filters = [];
+                const rows = advancedFilterBuilder.querySelectorAll('.filter-row');
+                rows.forEach((row, index) => {
+                    const logicSelector = row.querySelector('.logic-selector');
+                    const opSelector = row.querySelector('.op-selector');
+                    const fieldSelector = row.querySelector('.field-selector');
+                    const valueInput = row.querySelector('.value-input');
+
+                    if (fieldSelector && valueInput) {
+                        filters.push({
+                            logic: index > 0 && logicSelector ? logicSelector.value : null,
+                            field: fieldSelector.value,
+                            op: opSelector.value,
+                            value: valueInput.value
+                        });
+                    }
+                });
+                console.log("Filter data:", filters);
+
+                fetch('/apply_advanced_filter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(filters)
+                }).then(() => {
+                    console.log('POST DONE');
+                });
+                // .then(response => response.json()) 
+                // .then(data => {
+                //     console.log("Server response:", data);
+                //     // Update your table here with the 'data' received from the server
+                //     // For example, you might have a function like 'updateTable(data)'
+                //     if (data.error) {
+                //         // Display an error message to the user
+                //         console.error("Filtering error:", data.error);
+                //         // Optionally update a specific error display element in your HTML
+                //     } else {
+                //         // Assuming 'data.results' contains the filtered data for the table
+                //         updateTable(data.results);
+                //     }
+                // })
+                // .catch(error => {
+                //     console.error("There was an error sending the filter data:", error);
+                //     // Optionally display a generic error message to the user
+                // });
+            });
+        }
+
+        if (addRowButton) {
+            addRowButton.addEventListener('click', createNewFilterRow);
+        }
+
+        function showFilterColumnsMenu() {
+            genomicFilterMenu.classList.remove('show');
+
+            clearTimeout(hideTimeoutId);
+            columnFilterMenu.classList.add('show');
+        }
+
+        function hideFilterColumnsMenu() {
+            hideTimeoutId = setTimeout(() => {
+                if (!columnFilterMenu.matches(':hover')) {
+                    columnFilterMenu.classList.remove('show');
+                }
+            }, 200);
+        }
+
+        columnFilterMenu.onmouseover = function () {
+            clearTimeout(hideTimeoutId); // Clear the timeout if the mouse enters the menu
+        };
+
+        function autoHideColumnFilterMenu() {
+            hideTimeoutId = setTimeout(() => {
+                columnFilterMenu.classList.remove('show');
+            }, 500);
+        }
+
+        function showFilterGenomicMenu() {
+            columnFilterMenu.classList.remove('show');
+            clearTimeout(hideTimeoutId);
+            genomicFilterMenu.classList.add('show');
+        }
+
+        function hideFilterGenomicMenu() {
+            hideTimeoutId = setTimeout(() => {
+                if (!genomicFilterMenu.matches(':hover')) {
+                    genomicFilterMenu.classList.remove('show');
+                }
+            }, 200);
+        }
+
+        genomicFilterMenu.onmouseover = function () {
+            clearTimeout(hideTimeoutId); // Clear the timeout if the mouse enters the menu
+        };
+
+        function autoHideGenomicFilterMenu() {
+            hideTimeoutId = setTimeout(() => {
+                genomicFilterMenu.classList.remove('show');
+            }, 500);
+        }
+
+        function toggleFilterMetagenomicMenu() {
+            genomicFilterMenu.classList.toggle('show');
+        }
+
+        function selectAllColumns() {
+            columnCheckboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        }
+
+        function unselectAllColumns() {
+            columnCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        function selectAllGenomicTypes() {
+            genomesCheckboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        }
+
+        function unselectAllGenomicTypes() {
+            genomesCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        function updateURL(params) {
+            const url = new URL(window.location.href);
+            for (const key in params) {
+                if (key === 'page' && params[key] === 1) {
+                    // Don't add page=1 to the URL unless it's explicitly needed
+                    url.searchParams.delete(key);
+                }
+                else if (Array.isArray(params[key])) {
+                    url.searchParams.delete(key); // Clear existing values
+                    params[key].forEach(value => {
+                        url.searchParams.append(key, value);
+                    });
+                } else {
+                    url.searchParams.set(key, params[key]);
+                }
+            }
+            window.location.href = url.toString();
+        }
+
+        function applyColumnFilter() {
+            const form = document.getElementById('columnFilterForm');
+            checkboxes = form.querySelectorAll('input[name="visible_columns"]:checked');
+            const selectedColumns = Array.from(checkboxes).map(cb => cb.value);
+            checkboxes = form.querySelectorAll('input[name="filter_genomes"]:checked');
+            const selectedTypes = Array.from(checkboxes).map(cb => cb.value);
+            updateURL({ visible_columns: selectedColumns.join(','), filter_genomes: selectedTypes.join(',') });
+        }
+
+        function applyGenomicTypeFilter() {
+            const form = document.getElementById('genomicFilterForm');
+            checkboxes = form.querySelectorAll('input[name="filter_genomes"]:checked');
+            const selectedTypes = Array.from(checkboxes).map(cb => cb.value);
+            checkboxes = form.querySelectorAll('input[name="visible_columns"]:checked');
+            const selectedColumns = Array.from(checkboxes).map(cb => cb.value);
+            updateURL({ visible_columns: selectedColumns.join(','), filter_genomes: selectedTypes.join(','), page: 1 });
+        }
+
+        function filterColumnsAndSubmitURL() {
+            const form = document.getElementById('columnFilterForm');
+            const checkboxes = form.querySelectorAll('input[name="visible_columns"]:checked');
+            const selectedColumns = Array.from(checkboxes).map(cb => cb.value);
+
+            let newURL = '/';
+
+            if (selectedColumns.length > 0) {
+                newURL += `?visible_columns=${encodeURIComponent(selectedColumns.join(','))}`;
+            }
+
+            window.location.href = newURL;
+        }
+
+        function filterGenomicTypesAndSubmitURL() {
+            const form = document.getElementById('genomicFilterForm');
+            const checkboxes = form.querySelectorAll('input[name="filter_genomes"]:checked');
+            const selectedColumns = Array.from(checkboxes).map(cb => cb.value);
+
+            let newURL = '/';
+
+            if (selectedColumns.length > 0) {
+                newURL += `?filter_genomes=${encodeURIComponent(selectedColumns.join(','))}`;
+            }
+
+            window.location.href = newURL;
+        }
+
+    </script>
+</body>
+
+</html>
