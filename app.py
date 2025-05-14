@@ -1,7 +1,5 @@
 from math import ceil
-from turtle import down
 from flask import Flask, render_template, request, g, current_app, abort, send_from_directory
-from flask_frozen import Freezer
 import sqlite3
 import os
 import pandas as pd
@@ -213,5 +211,4 @@ def execute_query():
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    freezer.freeze()
+    app.run(debug=True)
