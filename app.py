@@ -5,7 +5,6 @@ import os
 import pandas as pd
 
 app = Flask(__name__)
-freezer = Freezer(app)
 
 CONTENT_FOLDER = os.path.join(app.root_path, 'data/samples/')
 DATABASE = os.path.join(app.root_path, 'data/unwasted.db')
